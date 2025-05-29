@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: lamps
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1337
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  app:
+    build: .
+    container_name: lamps-app
+    depends_on:
+      - db
+      - minio
+    environment:
+      #DB
+      DB_DSN: postgres://postgres:1337@db:5432/lamps?sslmode=disable
+      #TOKEN SECURITY
+      SECRET: SUPER-SECRET-KEY
+      #MINIO
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: bucket
+      MINIO_URL: minio:9000
+      #APP
+      APP_URL: 0.0.0.0:8080
+    ports:
+      - "8081:8080"
+
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+volumes:
+  postgres_data:
+  minio_data:
