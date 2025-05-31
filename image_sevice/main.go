@@ -30,19 +30,26 @@ func main() {
 	}()
 
 	// -----------------------------------------------------------------
-
+	
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusOK)
 	})
-	
+
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:5173, http://127.0.0.1:5173",
 	}))
 
 
-	handlers.UserGoodsHandlers(app.Group("/goods"), settings.Clients.DbClient, ctx)
-	protected := app.Group("/", middlewares.AuthMiddleware(settings.Clients.DbClient, ctx))
-	handlers.AdminGoodsHandler(protected.Group("/admin/goods"), settings.Clients.DbClient, ctx)
+	app.Get("/images/:image_url", func(c *fiber.Ctx) error {
+		return handlers.GetImageHandler(c)
+	})
+
+	protected := app.Group("/", middlewares.AuthMiddleware(ctx))
+
+	protected.Post("images", func(c *fiber.Ctx) error {
+		return handlers.PostImageHandler(c)
+	})
+
 
 	// -----------------------------------------------------------------
 

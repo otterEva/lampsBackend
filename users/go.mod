@@ -1,4 +1,4 @@
-module github.com/otterEva/lamps/auth_service
+module github.com/otterEva/lamps/users
 
 go 1.24.3
 

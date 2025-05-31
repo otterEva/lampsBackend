@@ -8,8 +8,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/otterEva/lamps/auth_service/handlers"
-	"github.com/otterEva/lamps/auth_service/settings"
+	"github.com/otterEva/lamps/users/handlers"
+	"github.com/otterEva/lamps/users/settings"
 )
 
 func main() {
@@ -37,7 +37,17 @@ func main() {
 		return c.SendStatus(fiber.StatusOK)
 	})
 
-	handlers.AuthHandlers(app.Group("/auth"), settings.Clients.DbClient, ctx)
+	app.Post("/register", func(c *fiber.Ctx) error {
+		return handlers.RegisterHandler(c, ctx)
+	})
+
+	app.Post("/login", func(c *fiber.Ctx) error {
+		return handlers.LoginHandler(c, ctx)
+	})
+
+	app.Get("/validattion/:userId/:admin", func(c *fiber.Ctx) error {
+		return handlers.CheckForUserHandler(c)
+	})
 
 	// -----------------------------------------------------------------
 

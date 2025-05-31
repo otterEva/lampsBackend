@@ -10,12 +10,12 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/golang-jwt/jwt"
 	"github.com/jackc/pgx"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/otterEva/lamps/image_service/settings"
 )
 
-func AuthMiddleware(dbClient *pgxpool.Pool, ctx context.Context) fiber.Handler {
+func AuthMiddleware(ctx context.Context) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+
 
 		cookieToken := c.Cookies("jwt")
 
@@ -79,12 +79,9 @@ func AuthMiddleware(dbClient *pgxpool.Pool, ctx context.Context) fiber.Handler {
 			log.Fatal(err)
 		}
 
-		// Set the userId in the Locals
 		c.Locals("userId", userId)
 		c.Locals("admin", admin)
 
-
-		// Continue to the next middleware
 		return c.Next()
 	}
 }
