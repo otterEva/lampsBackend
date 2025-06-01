@@ -17,6 +17,8 @@ type configStruct struct {
 	MINIO_ACCESS_KEY string `env:"MINIO_ACCESS_KEY"`
 	MINIO_SECRET_KEY string `env:"MINIO_SECRET_KEY"`
 	MINIO_URL        string `env:"MINIO_URL"`
+
+	LOG_LEVEL string `env:"LOG_LEVEL"`
 }
 
 func getConfig() *configStruct {

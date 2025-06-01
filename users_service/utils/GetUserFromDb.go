@@ -3,14 +3,15 @@ package utils
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/gofiber/fiber"
 	"github.com/jackc/pgx/v5"
+	"github.com/otterEva/lamps/users_service/logs"
 	"github.com/otterEva/lamps/users_service/settings"
 )
 
-func GetUserFromDb(ctx context.Context, userId string, admin bool) error {
+func GetUserFromDb(c *fiber.Ctx, ctx context.Context, userId uint, admin bool) error {
 
 	sql, args, err := sq.
 		Select("1").
@@ -20,7 +21,8 @@ func GetUserFromDb(ctx context.Context, userId string, admin bool) error {
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to build SQL: %w", err)
+		logs.Logger.Error("error while creating request", "sql", sql, "args", args)
+		return c.SendStatus(StatusInternalServerError)
 	}
 
 	var exists int
@@ -30,9 +32,15 @@ func GetUserFromDb(ctx context.Context, userId string, admin bool) error {
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return fmt.Errorf("user not found or access denied")
+
+			logs.Logger.Debug("user not exists", "err", err.Error())
+
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "user doesn't exists",
+		})
 		}
-		return fmt.Errorf("database error: %w", err)
+		logs.Logger.Error("undexpected error")
+		return c.SendStatus(StatusInternalServerError)
 	}
 
 	return nil

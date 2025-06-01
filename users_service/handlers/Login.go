@@ -6,8 +6,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/jackc/pgx/v5"
+	"github.com/otterEva/lamps/users_service/logs"
 	"github.com/otterEva/lamps/users_service/schemas"
 	"github.com/otterEva/lamps/users_service/settings"
 	"github.com/otterEva/lamps/users_service/utils"
@@ -20,6 +20,8 @@ func LoginHandler(c *fiber.Ctx, ctx context.Context) error {
 		Email:    c.FormValue("email"),
 		Password: c.FormValue("password"),
 	}
+
+	logs.Logger.Debug("user creds", "email", authUser.Email, "passwrod", authUser.Password)
 
 	if authUser.Email == "" || authUser.Password == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -36,7 +38,7 @@ func LoginHandler(c *fiber.Ctx, ctx context.Context) error {
 		ToSql()
 
 	if err != nil {
-		log.Debug(err.Error())
+		logs.Logger.Error("query error", "sql", sql, "args", args, "err", err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
@@ -49,24 +51,23 @@ func LoginHandler(c *fiber.Ctx, ctx context.Context) error {
 	err = dbClient.QueryRow(ctx, sql, args...).Scan(&userID, &hashedPassword, &admin)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Invalid email or password",
-			})
+			logs.Logger.Error("user doesnt exist")
+			return c.SendStatus(fiber.StatusUnauthorized)
 		}
-		log.Fatal(err)
+		logs.Logger.Error("unexpected db error")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(authUser.Password)); err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Invalid credentials",
-		})
+		logs.Logger.Info("is this token real? seems like no")
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
+
+	logs.Logger.Debug("to token", "admin", admin, "userId", userID)
 
 	token, err := utils.GenerateToken(admin, userID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+		logs.Logger.Error("error while creating a token")
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	c.Cookie(&fiber.Cookie{

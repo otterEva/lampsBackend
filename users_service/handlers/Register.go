@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/otterEva/lamps/users_service/logs"
 	"github.com/otterEva/lamps/users_service/schemas"
 	"github.com/otterEva/lamps/users_service/settings"
 	"github.com/otterEva/lamps/users_service/utils"
@@ -25,12 +26,12 @@ func RegisterHandler(c *fiber.Ctx, ctx context.Context) error {
 		})
 	}
 
+	logs.Logger.Debug("creds", "email", email, "password", password)
+			
 	hashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Debug(err.Error())
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+		logs.Logger.Debug("error while hashing password")
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	sql, args, err := sq.
@@ -40,7 +41,7 @@ func RegisterHandler(c *fiber.Ctx, ctx context.Context) error {
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
-		log.Debug(err.Error())
+		logs.Logger.Error("error while creating query")
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
@@ -51,18 +52,16 @@ func RegisterHandler(c *fiber.Ctx, ctx context.Context) error {
 
 	err = dbClient.QueryRow(ctx, sql, args...).Scan(&userID, &admin)
 	if err != nil {
-		log.Debug(err.Error())
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+		logs.Logger.Debug("error while executing query", "sql", sql, "args", args, "err": err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	token, err := utils.GenerateToken(admin, userID)
+
 	if err != nil {
 		log.Debug(err.Error())
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+		logs.Logger.Debug("creating token error")
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	c.Cookie(&fiber.Cookie{

@@ -11,6 +11,7 @@ type configStruct struct {
 
 	SECRET  string `env:"SECRET"`
 	APP_URL string `env:"APP_URL"`
+	LOG_LEVEL string `env:"LOG_LEVEL"`
 }
 
 func getConfig() *configStruct {
