@@ -1,21 +1,19 @@
 package middlewares
 
 import (
-	"context"
-	"errors"
 	"fmt"
+	"net/http"
+	"sync"
 
-	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/golang-jwt/jwt"
-	"github.com/jackc/pgx"
 	"github.com/otterEva/lamps/image_service/settings"
 )
 
-func AuthMiddleware(ctx context.Context) fiber.Handler {
+func AuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
+		// блок работы с куки
 
 		cookieToken := c.Cookies("jwt")
 
@@ -43,8 +41,6 @@ func AuthMiddleware(ctx context.Context) fiber.Handler {
 
 		userId, ok := claims["userId"]
 		admin, ok := claims["admin"]
-		
-		log.Debug(userId, admin)
 
 		if !ok {
 			c.ClearCookie("jwt")
@@ -53,34 +49,31 @@ func AuthMiddleware(ctx context.Context) fiber.Handler {
 				"message": "invalid token",
 			})
 		}
-		
-		log.Debug(userId, admin)
 
-		sql, args, err := sq.
-			Select("1").
-			From("Users").
-			Where(sq.Eq{"id": userId, "admin": admin}).
-			Limit(1).
-			PlaceholderFormat(sq.Dollar).
-			ToSql()
-		if err != nil {
-			log.Debug(err.Error())
-			return c.SendStatus(fiber.StatusInternalServerError)
-		}
+		// блок проверки прав
 
-		var exists int
+		var wg sync.WaitGroup
+		wg.Add(1)
 
-		err = dbClient.QueryRow(ctx, sql, args...).Scan(&exists)
-		if err != nil {
-			if errors.Is(err, pgx.ErrNoRows) {
-				c.ClearCookie("jwt")
-				return c.SendStatus(fiber.StatusUnauthorized)
+		go func() {
+			defer wg.Done()
+
+			resp, err := http.Get(fmt.Sprintf("http://users_service:8001/%s/%s", userId, admin))
+			if err != nil {
+				fmt.Println("Ошибка запроса:", err)
+				return
 			}
-			log.Fatal(err)
-		}
+			defer resp.Body.Close()
 
-		c.Locals("userId", userId)
-		c.Locals("admin", admin)
+			if resp.StatusCode != 200 {
+				c.SendStatus(fiber.StatusForbidden)
+			} else {
+				c.Locals("userId", userId)
+				c.Locals("admin", admin)
+			}
+		}()
+
+		wg.Wait()
 
 		return c.Next()
 	}

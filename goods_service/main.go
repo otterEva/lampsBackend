@@ -21,6 +21,8 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	_ = ctx
+
 	go func() {
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
@@ -32,16 +34,34 @@ func main() {
 	// -----------------------------------------------------------------
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173, http://127.0.0.1:5173",
+		AllowOrigins: "*",
 	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusOK)
 	})
 
-	handlers.UserGoodsHandlers(app.Group("/goods"), settings.Clients.DbClient, ctx)
-	protected := app.Group("/", middlewares.AuthMiddleware(settings.Clients.DbClient, ctx))
-	handlers.AdminGoodsHandler(protected.Group("/admin/goods"), settings.Clients.DbClient, ctx)
+	app.Get("/goods", func(c *fiber.Ctx) error {
+		return handlers.UserGoodsGet(c, ctx)
+	})
+
+	protected := app.Group("/", middlewares.AuthMiddleware())
+	
+	protected.Delete("/admin/goods", func(c *fiber.Ctx) error {
+		return handlers.AdminGoodDelete(c, ctx)
+	})
+
+	protected.Post("/admin/goods", func(c *fiber.Ctx) error {
+		return handlers.AdminGoodsPost(c, ctx)
+	})
+
+	protected.Get("/admin/goods", func(c *fiber.Ctx) error {
+		return handlers.AdminGoodsGet(c, ctx)
+	})
+
+	protected.Patch("/admin/goods", func(c *fiber.Ctx) error {
+		return handlers.AdminGoodsPatch(c, ctx)
+	})
 
 	// -----------------------------------------------------------------
 

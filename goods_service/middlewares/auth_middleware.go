@@ -1,17 +1,16 @@
 package middlewares
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
-	"github.com/otterEva/lamps/orders_service/settings"
+	"github.com/otterEva/lamps/goods_service/settings"
 )
 
-func AuthMiddleware(ctx context.Context) fiber.Handler {
+func AuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		
 		// блок работы с куки

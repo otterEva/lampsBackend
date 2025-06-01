@@ -1,39 +1,96 @@
 version: "3.8"
 
 services:
-  db:
+  UsersDB:
     image: postgres:15
-    container_name: postgres
+    container_name: UsersDB
     restart: always
     environment:
-      POSTGRES_DB: lamps
+      POSTGRES_DB: users
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1337
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_users:/var/lib/postgresql/data
     ports:
       - "5433:5432"
 
-  app:
-    build: .
-    container_name: lamps-app
+  UsersService:
+    build: ./users
+    container_name: users_service
     depends_on:
-      - db
+      - UsersDB
+    environment:
+      DB_DSN: postgres://postgres:1337@users:5432/lamps?sslmode=disable
+      SECRET: SUPER-SECRET-KEY
+      APP_URL: 0.0.0.0:8081
+    ports:
+      - "8081:8081"
+
+  # ------------------------------------------------------------------
+  OrdersDB:
+    image: postgres:15
+    container_name: OrdersDB
+    restart: always
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1337
+    volumes:
+      - postgres_data_orders:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  OrdersService:
+    build: ./orders_service
+    container_name: orders_service
+    depends_on:
+      - OrdersDB
+    environment:
+      DB_DSN: postgres://postgres:1337@orders:5432/lamps?sslmode=disable
+      SECRET: SUPER-SECRET-KEY
+      APP_URL: 0.0.0.0:8082
+    ports:
+      - "8082:8082"
+
+  # ------------------------------------------------------------------
+
+  GoodsDB:
+    image: postgres:15
+    container_name: GoodsDB
+    restart: always
+    environment:
+      POSTGRES_DB: goods
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1337
+    volumes:
+      - postgres_data_goods:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+
+  GoodsService:
+    build: ./goods_service
+    container_name: goods_service
+    depends_on:
+      - GoodsService
+    environment:
+      DB_DSN: postgres://postgres:1337@goods:5432/lamps?sslmode=disable
+      SECRET: SUPER-SECRET-KEY
+      APP_URL: 0.0.0.0:8083
+    ports:
+      - "8083:8083"
+
+  # ------------------------------------------------------------------
+
+  ImageService:
+    build: ./image_service
+    container_name: image_service
+    depends_on:
       - minio
     environment:
-      #DB
-      DB_DSN: postgres://postgres:1337@db:5432/lamps?sslmode=disable
-      #TOKEN SECURITY
       SECRET: SUPER-SECRET-KEY
-      #MINIO
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-      MINIO_BUCKET: bucket
-      MINIO_URL: minio:9000
-      #APP
-      APP_URL: 0.0.0.0:8080
+      APP_URL: 0.0.0.0:8083
     ports:
-      - "8081:8080"
+      - "8083:8083"
 
   minio:
     container_name: minio
@@ -54,5 +111,7 @@ services:
       retries: 3
 
 volumes:
-  postgres_data:
+  postgres_data_orders:
+  postgres_data_users:
+  postgres_data_goods:
   minio_data:

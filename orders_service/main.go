@@ -39,10 +39,10 @@ func main() {
 		AllowOrigins: "http://localhost:5173, http://127.0.0.1:5173",
 	}))
 	
-	protected := app.Group("/", middlewares.AuthMiddleware(settings.Clients.DbClient, ctx))
+	protected := app.Group("/", middlewares.AuthMiddleware(ctx))
 
-	handlers.UserOrdersHandler(protected.Group("/orders"), settings.Clients.DbClient, ctx)
-	handlers.AdminOrdersHandler(protected.Group("/admin/orders"), settings.Clients.DbClient, ctx)
+	handlers.UserOrdersHandler(protected.Group("/orders"), ctx)
+	handlers.AdminOrdersHandler(protected.Group("/admin/orders"), ctx)
 
 	// -----------------------------------------------------------------
 

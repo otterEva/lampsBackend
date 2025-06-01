@@ -21,6 +21,8 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	_ = ctx
+
 	go func() {
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
@@ -30,26 +32,24 @@ func main() {
 	}()
 
 	// -----------------------------------------------------------------
-	
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendStatus(fiber.StatusOK)
-	})
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:5173, http://127.0.0.1:5173",
 	}))
 
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
+	})
 
 	app.Get("/images/:image_url", func(c *fiber.Ctx) error {
 		return handlers.GetImageHandler(c)
 	})
 
-	protected := app.Group("/", middlewares.AuthMiddleware(ctx))
+	protected := app.Group("/", middlewares.AuthMiddleware())
 
 	protected.Post("images", func(c *fiber.Ctx) error {
 		return handlers.PostImageHandler(c)
 	})
-
 
 	// -----------------------------------------------------------------
 
