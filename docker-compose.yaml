@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  UsersDB:
+  users_db:
     image: postgres:15
     container_name: UsersDB
     restart: always
@@ -14,11 +14,11 @@ services:
     ports:
       - "5433:5432"
 
-  UsersService:
-    build: ./users
+  users_service:
+    build: ./users_service
     container_name: users_service
     depends_on:
-      - UsersDB
+      - users_db
     environment:
       DB_DSN: postgres://postgres:1337@users:5432/lamps?sslmode=disable
       SECRET: SUPER-SECRET-KEY
@@ -27,7 +27,7 @@ services:
       - "8081:8081"
 
   # ------------------------------------------------------------------
-  OrdersDB:
+  orders_db:
     image: postgres:15
     container_name: OrdersDB
     restart: always
@@ -40,11 +40,11 @@ services:
     ports:
       - "5434:5432"
 
-  OrdersService:
+  orders_service:
     build: ./orders_service
     container_name: orders_service
     depends_on:
-      - OrdersDB
+      - orders_db
     environment:
       DB_DSN: postgres://postgres:1337@orders:5432/lamps?sslmode=disable
       SECRET: SUPER-SECRET-KEY
@@ -54,7 +54,7 @@ services:
 
   # ------------------------------------------------------------------
 
-  GoodsDB:
+  goods_db:
     image: postgres:15
     container_name: GoodsDB
     restart: always
@@ -67,11 +67,11 @@ services:
     ports:
       - "5435:5432"
 
-  GoodsService:
+  goods_service:
     build: ./goods_service
     container_name: goods_service
     depends_on:
-      - GoodsService
+      - goods_db
     environment:
       DB_DSN: postgres://postgres:1337@goods:5432/lamps?sslmode=disable
       SECRET: SUPER-SECRET-KEY
@@ -81,7 +81,7 @@ services:
 
   # ------------------------------------------------------------------
 
-  ImageService:
+  image_service:
     build: ./image_service
     container_name: image_service
     depends_on:

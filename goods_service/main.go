@@ -50,7 +50,7 @@ func main() {
 	})
 
 	protected := app.Group("/", middlewares.AuthMiddleware())
-	
+
 	protected.Delete("/admin/goods", func(c *fiber.Ctx) error {
 		return handlers.AdminGoodDelete(c, ctx)
 	})

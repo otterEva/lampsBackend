@@ -14,12 +14,12 @@ func SendToImageService(c *fiber.Ctx) (string, error) {
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		return "", c.SendStatus(fiber.StatusBadRequest)
-		}
+	}
 
 	srcFile, err := fileHeader.Open()
 	if err != nil {
 		return "", c.SendStatus(fiber.StatusInternalServerError)
-		}
+	}
 
 	defer srcFile.Close()
 
@@ -29,7 +29,7 @@ func SendToImageService(c *fiber.Ctx) (string, error) {
 	part, err := writer.CreateFormFile("file", fileHeader.Filename)
 	if err != nil {
 		return "", c.SendStatus(fiber.StatusInternalServerError)
-		}
+	}
 
 	if _, err := io.Copy(part, srcFile); err != nil {
 		return "", c.SendStatus(fiber.StatusInternalServerError)

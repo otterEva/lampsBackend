@@ -42,7 +42,7 @@ func UserPostOrder(c *fiber.Ctx, ctx context.Context) error {
 		if resp.Status != "200" {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
-		
+
 	}
 
 	builder := sq.

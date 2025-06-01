@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/otterEva/lamps/users/utils"
+	"github.com/otterEva/lamps/users_service/utils"
 )
 
 func CheckForUserHandler(c *fiber.Ctx) error {

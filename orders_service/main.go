@@ -41,16 +41,16 @@ func main() {
 
 	protected := app.Group("/", middlewares.AuthMiddleware(ctx))
 
-	protected.Get("/orders", func (c *fiber.Ctx) error {
+	protected.Get("/orders", func(c *fiber.Ctx) error {
 		return handlers.UserGetOrders(c, ctx)
 	})
-	protected.Get("/admin/orders", func (c *fiber.Ctx) error {
+	protected.Get("/admin/orders", func(c *fiber.Ctx) error {
 		return handlers.AdminGetOrders(c, ctx)
 	})
-	protected.Post("orders", func (c *fiber.Ctx) error {
+	protected.Post("orders", func(c *fiber.Ctx) error {
 		return handlers.UserPostOrder(c, ctx)
 	})
-	protected.Delete("/admin/orders", func (c *fiber.Ctx) error {
+	protected.Delete("/admin/orders", func(c *fiber.Ctx) error {
 		return handlers.AdminDeleteOrder(c, ctx)
 	})
 

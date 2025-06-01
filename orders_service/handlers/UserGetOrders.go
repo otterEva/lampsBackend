@@ -30,7 +30,7 @@ func UserGetOrders(c *fiber.Ctx, ctx context.Context) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-	
+
 	defer rows.Close()
 
 	orders := make(map[string][]schemas.OrderItemOutput)
