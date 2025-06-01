@@ -9,7 +9,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/otterEva/lamps/image_service/handlers"
-	"github.com/otterEva/lamps/image_service/middlewares"
 	"github.com/otterEva/lamps/image_service/settings"
 )
 
@@ -45,9 +44,7 @@ func main() {
 		return handlers.GetImageHandler(c)
 	})
 
-	protected := app.Group("/", middlewares.AuthMiddleware())
-
-	protected.Post("images", func(c *fiber.Ctx) error {
+	app.Post("images", func(c *fiber.Ctx) error {
 		return handlers.PostImageHandler(c)
 	})
 

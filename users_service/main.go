@@ -8,8 +8,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/otterEva/lamps/users/handlers"
-	"github.com/otterEva/lamps/users/settings"
+	"github.com/otterEva/lamps/users_service/handlers"
+	"github.com/otterEva/lamps/users_service/settings"
 )
 
 func main() {

@@ -13,7 +13,7 @@ import (
 
 func AuthMiddleware(ctx context.Context) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		
+
 		// блок работы с куки
 
 		cookieToken := c.Cookies("jwt")
@@ -75,7 +75,7 @@ func AuthMiddleware(ctx context.Context) fiber.Handler {
 		}()
 
 		wg.Wait()
-		
+
 		return c.Next()
 	}
 }

@@ -2,68 +2,64 @@ package handlers
 
 import (
 	"context"
-	"errors"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/jackc/pgx/v5"
-	"github.com/otterEva/lamps/users/schemas"
-	"github.com/otterEva/lamps/users/settings"
-	"github.com/otterEva/lamps/users/utils"
+	"github.com/otterEva/lamps/users_service/schemas"
+	"github.com/otterEva/lamps/users_service/settings"
+	"github.com/otterEva/lamps/users_service/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func LoginHandler(c *fiber.Ctx, ctx context.Context) error {
+func RegisterHandler(c *fiber.Ctx, ctx context.Context) error {
 
-	authUser := &schemas.User{
+	user := &schemas.User{
 		Email:    c.FormValue("email"),
 		Password: c.FormValue("password"),
 	}
 
-	if authUser.Email == "" || authUser.Password == "" {
+	if user.Email == "" || user.Password == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Email and password required",
 		})
 	}
 
+	hashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Debug(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
 	sql, args, err := sq.
-		Select("id", "password", "admin").
-		From("Users").
-		Where(sq.Eq{"email": authUser.Email}).
-		Limit(1).
+		Insert("Users").Columns("email", "password").
+		Values(user.Email, string(hashed)).
+		Suffix("RETURNING id, admin").
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		log.Debug(err.Error())
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	var userID uint
-	var hashedPassword string
 	var admin bool
 
 	dbClient := settings.Clients.DbClient
 
-	err = dbClient.QueryRow(ctx, sql, args...).Scan(&userID, &hashedPassword, &admin)
+	err = dbClient.QueryRow(ctx, sql, args...).Scan(&userID, &admin)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Invalid email or password",
-			})
-		}
-		log.Fatal(err)
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(authUser.Password)); err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Invalid credentials",
+		log.Debug(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 
 	token, err := utils.GenerateToken(admin, userID)
 	if err != nil {
+		log.Debug(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})

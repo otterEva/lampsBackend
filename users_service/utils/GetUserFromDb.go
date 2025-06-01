@@ -7,7 +7,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
-	"github.com/otterEva/lamps/users/settings"
+	"github.com/otterEva/lamps/users_service/settings"
 )
 
 func GetUserFromDb(ctx context.Context, userId string, admin string) error {

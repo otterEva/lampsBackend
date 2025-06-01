@@ -30,6 +30,7 @@ func AdminGoodsPatch(c *fiber.Ctx, ctx context.Context) error {
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
+		
 		defer file.Close()
 
 		buf := new(bytes.Buffer)

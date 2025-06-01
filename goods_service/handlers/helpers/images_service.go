@@ -47,11 +47,6 @@ func SendToImageService(c *fiber.Ctx) (string, error) {
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
-	cookieHeader := c.Get("Cookie")
-	if cookieHeader != "" {
-		req.Header.Set("Cookie", cookieHeader)
-	}
-
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 )
 
 type clientsStruct struct {
-	DbClient    *pgxpool.Pool
+	DbClient *pgxpool.Pool
 }
 
 func getDbClient() *pgxpool.Pool {

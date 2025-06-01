@@ -38,11 +38,21 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:5173, http://127.0.0.1:5173",
 	}))
-	
+
 	protected := app.Group("/", middlewares.AuthMiddleware(ctx))
 
-	handlers.UserOrdersHandler(protected.Group("/orders"), ctx)
-	handlers.AdminOrdersHandler(protected.Group("/admin/orders"), ctx)
+	protected.Get("/orders", func (c *fiber.Ctx) error {
+		return handlers.UserGetOrders(c, ctx)
+	})
+	protected.Get("/admin/orders", func (c *fiber.Ctx) error {
+		return handlers.AdminGetOrders(c, ctx)
+	})
+	protected.Post("orders", func (c *fiber.Ctx) error {
+		return handlers.UserPostOrder(c, ctx)
+	})
+	protected.Delete("/admin/orders", func (c *fiber.Ctx) error {
+		return handlers.AdminDeleteOrder(c, ctx)
+	})
 
 	// -----------------------------------------------------------------
 

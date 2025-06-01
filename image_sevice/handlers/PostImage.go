@@ -8,11 +8,6 @@ import (
 )
 
 func PostImageHandler(c *fiber.Ctx) error {
-	val := c.Locals("admin")
-	isAdmin, ok := val.(bool)
-	if !ok || !isAdmin {
-		return c.SendStatus(fiber.StatusForbidden)
-	}
 
 	fileHeader, err := c.FormFile("file")
 	if err != nil {

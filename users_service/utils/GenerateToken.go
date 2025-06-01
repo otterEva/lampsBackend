@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/golang-jwt/jwt"
-	"github.com/otterEva/lamps/users/settings"
+	"github.com/otterEva/lamps/users_service/settings"
 )
 
 func GenerateToken(admin bool, userId uint) (string, error) {

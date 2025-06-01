@@ -45,6 +45,10 @@ func main() {
 		return handlers.UserGoodsGet(c, ctx)
 	})
 
+	app.Get("/goods/:id", func(c *fiber.Ctx) error {
+		return handlers.UserGoodsGet(c, ctx)
+	})
+
 	protected := app.Group("/", middlewares.AuthMiddleware())
 	
 	protected.Delete("/admin/goods", func(c *fiber.Ctx) error {

@@ -1,4 +1,4 @@
-module github.com/otterEva/lamps/users
+module github.com/otterEva/lamps/users_service
 
 go 1.24.3
 

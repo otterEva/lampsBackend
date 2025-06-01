@@ -5,11 +5,11 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/otterEva/lamps/orders_service/schemas"
+	"github.com/otterEva/lamps/orders_service/settings"
 )
 
-route.Get("/", func(c *fiber.Ctx) error {
+func AdminGetOrders(c *fiber.Ctx, ctx context.Context) error {
 
 		val := c.Locals("admin")
 		isAdmin, ok := val.(bool)
@@ -29,6 +29,8 @@ route.Get("/", func(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 		}
 
+		dbClient := settings.Clients.DbClient
+
 		rows, err := dbClient.Query(ctx, sql, args...)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -46,4 +48,4 @@ route.Get("/", func(c *fiber.Ctx) error {
 		}
 
 		return c.JSON(allOrders)
-	})
+	}
