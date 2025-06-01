@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go"
 	"github.com/otterEva/lamps/image_service/settings"
@@ -28,6 +29,8 @@ func AddFile(originalFilename string, data []byte, contentType string) (string, 
 
 	objectName := uuid.New().String() + ext
 	reader := bytes.NewReader(data)
+
+	log.Debug(settings.Config.MINIO_BUCKET, objectName, contentType)
 
 	_, err := settings.Clients.MinioClient.PutObject(
 		settings.Config.MINIO_BUCKET,

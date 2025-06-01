@@ -2,66 +2,86 @@ package helpers
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 func SendToImageService(c *fiber.Ctx) (string, error) {
 
-	fileHeader, err := c.FormFile("file")
-	if err != nil {
-		return "", c.SendStatus(fiber.StatusBadRequest)
-	}
+    fileHeader, err := c.FormFile("file")
+    if err != nil {
+        return "", c.SendStatus(fiber.StatusBadRequest)
+    }
+    srcFile, err := fileHeader.Open()
+    if err != nil {
+        return "", c.SendStatus(fiber.StatusInternalServerError)
+    }
+    defer srcFile.Close()
 
-	srcFile, err := fileHeader.Open()
-	if err != nil {
-		return "", c.SendStatus(fiber.StatusInternalServerError)
-	}
+    var buf bytes.Buffer
+    writer := multipart.NewWriter(&buf)
 
-	defer srcFile.Close()
+    contentType := fileHeader.Header.Get("Content-Type")
+    if contentType == "" {
 
-	var buf bytes.Buffer
-	writer := multipart.NewWriter(&buf)
+        switch {
+        case fileHeader.Filename[len(fileHeader.Filename)-4:] == ".jpg",
+            fileHeader.Filename[len(fileHeader.Filename)-5:] == ".jpeg":
+            contentType = "image/jpeg"
+        case fileHeader.Filename[len(fileHeader.Filename)-4:] == ".png":
+            contentType = "image/png"
+        default:
+            contentType = "application/octet-stream"
+        }
+    }
 
-	part, err := writer.CreateFormFile("file", fileHeader.Filename)
-	if err != nil {
-		return "", c.SendStatus(fiber.StatusInternalServerError)
-	}
+    partHeader := make(textproto.MIMEHeader)
+    partHeader.Set("Content-Disposition",
+        fmt.Sprintf(`form-data; name="file"; filename="%s"`, fileHeader.Filename))
+    partHeader.Set("Content-Type", contentType)
 
-	if _, err := io.Copy(part, srcFile); err != nil {
-		return "", c.SendStatus(fiber.StatusInternalServerError)
-	}
+    part, err := writer.CreatePart(partHeader)
+    if err != nil {
+        return "", c.SendStatus(fiber.StatusInternalServerError)
+    }
 
-	if err := writer.Close(); err != nil {
-		return "", c.SendStatus(fiber.StatusInternalServerError)
-	}
+    if _, err := io.Copy(part, srcFile); err != nil {
+        return "", c.SendStatus(fiber.StatusInternalServerError)
+    }
+    if err := writer.Close(); err != nil {
+        return "", c.SendStatus(fiber.StatusInternalServerError)
+    }
 
-	imageServiceURL := "http://image_service:8003/images"
+    imageServiceURL := "http://image_service:8084/images"
+    req, err := http.NewRequest("POST", imageServiceURL, &buf)
+    if err != nil {
+        return "", c.SendStatus(fiber.StatusInternalServerError)
+    }
+    req.Header.Set("Content-Type", writer.FormDataContentType())
 
-	req, err := http.NewRequest("POST", imageServiceURL, &buf)
-	if err != nil {
-		return "", c.SendStatus(fiber.StatusInternalServerError)
-	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return "", c.SendStatus(fiber.StatusBadGateway)
+    }
+    defer resp.Body.Close()
+    log.Debug(resp)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", c.SendStatus(fiber.StatusBadGateway)
-	}
-	defer resp.Body.Close()
+    if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
+        return "", c.SendStatus(fiber.StatusBadGateway)
+    }
 
-	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
-		return "", c.SendStatus(fiber.StatusBadGateway)
-	}
+    savedNameBytes, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return "", c.SendStatus(fiber.StatusInternalServerError)
+    }
+    log.Debug(savedNameBytes)
 
-	savedNameBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", c.SendStatus(fiber.StatusInternalServerError)
-	}
-
-	return string(savedNameBytes), nil
+    return string(savedNameBytes), nil
 }

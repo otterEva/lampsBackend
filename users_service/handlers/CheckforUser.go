@@ -2,19 +2,26 @@ package handlers
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/otterEva/lamps/users_service/utils"
 )
 
 func CheckForUserHandler(c *fiber.Ctx) error {
-	userId := c.Query("userId")
-	admin := c.Query("admin")
+	userId := c.Params("userId")
+	adminStr := c.Params("admin")
 
-	err := utils.GetUserFromDb(context.Background(), userId, admin)
+ 	admin, err := strconv.ParseBool(adminStr)
+
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).SendString("admin must be true or false")
+    }
+
+	err = utils.GetUserFromDb(context.Background(), userId, admin)
 
 	if err != nil {
-		return c.SendStatus(fiber.StatusNotFound)
+		return err
 	}
 
 	return c.SendStatus(fiber.StatusOK)

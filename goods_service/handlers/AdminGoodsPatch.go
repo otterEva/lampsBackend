@@ -7,6 +7,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/otterEva/lamps/goods_service/handlers/helpers"
 	"github.com/otterEva/lamps/goods_service/settings"
 )
@@ -39,6 +40,7 @@ func AdminGoodsPatch(c *fiber.Ctx, ctx context.Context) error {
 	}
 
 	image_url, err := helpers.SendToImageService(c)
+	log.Debug(image_url)
 
 	if err != nil {
 		c.SendStatus(fiber.StatusInternalServerError)

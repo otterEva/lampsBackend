@@ -58,7 +58,7 @@ func AuthMiddleware() fiber.Handler {
 		go func() {
 			defer wg.Done()
 
-			resp, err := http.Get(fmt.Sprintf("http://users_service:8001/%s/%s", userId, admin))
+			resp, err := http.Get(fmt.Sprintf("http://users_service:8081/%v/%v", userId, admin))
 			if err != nil {
 				fmt.Println("Ошибка запроса:", err)
 				return
@@ -66,14 +66,14 @@ func AuthMiddleware() fiber.Handler {
 			defer resp.Body.Close()
 
 			if resp.StatusCode != 200 {
-				c.Locals("userId", userId)
-				c.Locals("admin", admin)
-			} else {
 				c.SendStatus(fiber.StatusForbidden)
 			}
 		}()
 
 		wg.Wait()
+
+		c.Locals("userId", userId)
+		c.Locals("admin", admin)
 
 		return c.Next()
 	}

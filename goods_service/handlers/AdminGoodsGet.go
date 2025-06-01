@@ -5,6 +5,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/otterEva/lamps/goods_service/schemas"
 	"github.com/otterEva/lamps/goods_service/settings"
 )
@@ -19,6 +20,8 @@ func AdminGoodsGet(c *fiber.Ctx, ctx context.Context) error {
 		})
 	}
 
+	log.Debug(isAdmin)
+		
 	sql, args, err := sq.
 		Select("id", "description", "name", "image_url", "cost", "active").
 		From("Goods").

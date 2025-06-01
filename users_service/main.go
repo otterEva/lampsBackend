@@ -45,7 +45,7 @@ func main() {
 		return handlers.LoginHandler(c, ctx)
 	})
 
-	app.Get("/validattion/:userId/:admin", func(c *fiber.Ctx) error {
+	app.Get("/:userId/:admin", func(c *fiber.Ctx) error {
 		return handlers.CheckForUserHandler(c)
 	})
 

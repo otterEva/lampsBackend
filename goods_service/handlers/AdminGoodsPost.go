@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
 	"strconv"
 
@@ -23,27 +22,15 @@ func AdminGoodsPost(c *fiber.Ctx, ctx context.Context) error {
 		})
 	}
 
-	fileHeader, err := c.FormFile("file")
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "No file provided")
-	}
-
-	file, err := fileHeader.Open()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Cannot open file")
-	}
-	defer file.Close()
-
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(file); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to read file")
-	}
+	log.Debug(isAdmin)
 
 	image_url, err := helpers.SendToImageService(c)
-
+	
 	if err != nil {
-		c.SendStatus(fiber.StatusInternalServerError)
+		return err
 	}
+
+	log.Debug(image_url)
 
 	costStr := c.FormValue("cost")
 	costUint64, err := strconv.ParseUint(costStr, 10, 64)

@@ -20,7 +20,7 @@ services:
     depends_on:
       - users_db
     environment:
-      DB_DSN: postgres://postgres:1337@users:5432/lamps?sslmode=disable
+      DB_DSN: postgres://postgres:1337@users_db:5432/users?sslmode=disable
       SECRET: SUPER-SECRET-KEY
       APP_URL: 0.0.0.0:8081
     ports:
@@ -46,7 +46,7 @@ services:
     depends_on:
       - orders_db
     environment:
-      DB_DSN: postgres://postgres:1337@orders:5432/lamps?sslmode=disable
+      DB_DSN: postgres://postgres:1337@orders_db:5432/orders?sslmode=disable
       SECRET: SUPER-SECRET-KEY
       APP_URL: 0.0.0.0:8082
     ports:
@@ -73,7 +73,7 @@ services:
     depends_on:
       - goods_db
     environment:
-      DB_DSN: postgres://postgres:1337@goods:5432/lamps?sslmode=disable
+      DB_DSN: postgres://postgres:1337@goods_db:5432/goods?sslmode=disable
       SECRET: SUPER-SECRET-KEY
       APP_URL: 0.0.0.0:8083
     ports:
@@ -88,9 +88,13 @@ services:
       - minio
     environment:
       SECRET: SUPER-SECRET-KEY
-      APP_URL: 0.0.0.0:8083
+      APP_URL: 0.0.0.0:8084
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: bucket
+      MINIO_URL: minio:9000
     ports:
-      - "8083:8083"
+      - "8084:8084"
 
   minio:
     container_name: minio

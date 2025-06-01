@@ -10,7 +10,7 @@ import (
 	"github.com/otterEva/lamps/users_service/settings"
 )
 
-func GetUserFromDb(ctx context.Context, userId string, admin string) error {
+func GetUserFromDb(ctx context.Context, userId string, admin bool) error {
 
 	sql, args, err := sq.
 		Select("1").

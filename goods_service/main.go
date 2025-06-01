@@ -46,12 +46,12 @@ func main() {
 	})
 
 	app.Get("/goods/:id", func(c *fiber.Ctx) error {
-		return handlers.UserGoodsGet(c, ctx)
+		return handlers.CheckIfGoodExists(c, ctx)
 	})
 
 	protected := app.Group("/", middlewares.AuthMiddleware())
 
-	protected.Delete("/admin/goods", func(c *fiber.Ctx) error {
+	protected.Delete("/admin/goods/:id", func(c *fiber.Ctx) error {
 		return handlers.AdminGoodDelete(c, ctx)
 	})
 
@@ -63,7 +63,7 @@ func main() {
 		return handlers.AdminGoodsGet(c, ctx)
 	})
 
-	protected.Patch("/admin/goods", func(c *fiber.Ctx) error {
+	protected.Patch("/admin/goods/:id", func(c *fiber.Ctx) error {
 		return handlers.AdminGoodsPatch(c, ctx)
 	})
 

@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/golang-jwt/jwt"
 	"github.com/otterEva/lamps/orders_service/settings"
 )
@@ -59,7 +60,7 @@ func AuthMiddleware(ctx context.Context) fiber.Handler {
 		go func() {
 			defer wg.Done()
 
-			resp, err := http.Get(fmt.Sprintf("http://users_service:8001/%s/%s", userId, admin))
+			resp, err := http.Get(fmt.Sprintf("http://users_service:8081/%v/%v", userId, admin))
 			if err != nil {
 				fmt.Println("Ошибка запроса:", err)
 				return
@@ -67,14 +68,14 @@ func AuthMiddleware(ctx context.Context) fiber.Handler {
 			defer resp.Body.Close()
 
 			if resp.StatusCode != 200 {
-				c.Locals("userId", userId)
-				c.Locals("admin", admin)
-			} else {
+				log.Debug(resp)
 				c.SendStatus(fiber.StatusForbidden)
 			}
 		}()
 
 		wg.Wait()
+		c.Locals("userId", userId)
+		c.Locals("admin", admin)
 
 		return c.Next()
 	}

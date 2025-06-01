@@ -8,6 +8,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 	"github.com/otterEva/lamps/orders_service/schemas"
 	"github.com/otterEva/lamps/orders_service/settings"
@@ -34,12 +35,13 @@ func UserPostOrder(c *fiber.Ctx, ctx context.Context) error {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		url := fmt.Sprintf("http://goods_service:8083/%v", item.GoodID)
+		url := fmt.Sprintf("http://goods_service:8083/goods/%v", item.GoodID)
 		resp, err := http.Get(url)
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
-		if resp.Status != "200" {
+		if resp.StatusCode != 200 {
+			log.Debug("ошибка запроса", resp.Status)
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 

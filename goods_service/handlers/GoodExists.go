@@ -6,6 +6,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/otterEva/lamps/goods_service/schemas"
 	"github.com/otterEva/lamps/goods_service/settings"
 )
@@ -16,6 +17,8 @@ func CheckIfGoodExists(c *fiber.Ctx, ctx context.Context) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid ID"})
 	}
+
+	log.Debug(id)
 
 	sql, args, err := sq.
 		Select("id", "description", "name", "active", "cost", "image_url").
@@ -34,8 +37,10 @@ func CheckIfGoodExists(c *fiber.Ctx, ctx context.Context) error {
 
 	err = dbClient.QueryRow(ctx, sql, args...).Scan(&g.ID, &g.Description, &g.Name, &g.Active, &g.Cost, &g.ImageURL)
 	if err != nil {
+		log.Debug("not found")
 		return c.SendStatus(fiber.StatusNotFound)
 	}
 
+	log.Debug("успешно отработали")
 	return c.SendStatus(fiber.StatusOK)
 }

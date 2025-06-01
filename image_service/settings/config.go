@@ -7,7 +7,6 @@ import (
 )
 
 type configStruct struct {
-	SECRET  string `env:"SECRET"`
 	APP_URL string `env:"APP_URL"`
 
 	MinioRootUser     string `env:"MinioRootUser"`

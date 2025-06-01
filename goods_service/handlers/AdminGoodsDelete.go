@@ -6,6 +6,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/otterEva/lamps/goods_service/settings"
 )
 
@@ -18,6 +19,8 @@ func AdminGoodDelete(c *fiber.Ctx, ctx context.Context) error {
 			"error": "Admin access required",
 		})
 	}
+
+	log.Debug(isAdmin)
 
 	idStr := c.Params("id")
 	idUint64, err := strconv.ParseUint(idStr, 10, 64)
