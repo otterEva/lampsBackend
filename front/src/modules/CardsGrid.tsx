@@ -16,7 +16,8 @@ const CardsGrid = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://goods_service:80/goods')
+        const response = await fetch('http://127.0.0.1:80/goods')
+        console.log(response)
         const data = await response.json()
         setGoodsData(data)
       } catch (error) {

@@ -12,7 +12,7 @@ const ImageOfGood = ({ image_url }: ImageOfGoodProps) => {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await fetch(`http://image_service:80/images/${image_url}`)
+        const response = await fetch(`http://127.0.0.1:80/images/${image_url}`)
         const blob = await response.blob()
         const url = URL.createObjectURL(blob)
         setImgUrl(url)

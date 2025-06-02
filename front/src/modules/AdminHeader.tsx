@@ -1,5 +1,3 @@
-import { Box } from 'lucide-react'
-
 import { Flex, HStack } from '@chakra-ui/react'
 
 import AdminGoodsBtn from '../UI/headers_parts/AdminGoodsBtn'
