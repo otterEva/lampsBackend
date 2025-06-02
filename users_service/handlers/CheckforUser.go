@@ -13,24 +13,24 @@ func CheckForUserHandler(c *fiber.Ctx) error {
 
 	userIdStr := c.Params("userId")
 
-    id64, err := strconv.ParseUint(userIdStr, 10, 32)
-    if err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "error": "invalid userId, must be a positive integer",
-        })
-    }
-    userId := uint(id64)
+	id64, err := strconv.ParseUint(userIdStr, 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "invalid userId, must be a positive integer",
+		})
+	}
+	userId := uint(id64)
 
 	adminStr := c.Params("admin")
- 	admin, err := strconv.ParseBool(adminStr)
+	admin, err := strconv.ParseBool(adminStr)
 
 	logs.Logger.Debug("Credentials from c.Params:", "userId", userId, "adminStr", adminStr)
 
-    if err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "admin must be ether true ether false",
 		})
-    }
+	}
 
 	err = utils.GetUserFromDb(c, context.Background(), userId, admin)
 

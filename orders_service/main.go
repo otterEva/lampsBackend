@@ -44,12 +44,15 @@ func main() {
 	protected.Get("/orders", func(c *fiber.Ctx) error {
 		return handlers.UserGetOrders(c, ctx)
 	})
+
+	protected.Post("/orders", func(c *fiber.Ctx) error {
+		return handlers.UserPostOrder(c, ctx)
+	})
+
 	protected.Get("/orders/admin", func(c *fiber.Ctx) error {
 		return handlers.AdminGetOrders(c, ctx)
 	})
-	protected.Post("orders", func(c *fiber.Ctx) error {
-		return handlers.UserPostOrder(c, ctx)
-	})
+
 	protected.Delete("/orders/admin", func(c *fiber.Ctx) error {
 		return handlers.AdminDeleteOrder(c, ctx)
 	})

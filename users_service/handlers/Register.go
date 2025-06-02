@@ -5,16 +5,15 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/otterEva/lamps/users_service/logs"
 	"github.com/otterEva/lamps/users_service/schemas"
 	"github.com/otterEva/lamps/users_service/settings"
 	"github.com/otterEva/lamps/users_service/utils"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func RegisterHandler(c *fiber.Ctx, ctx context.Context) error {
-
 	user := &schemas.User{
 		Email:    c.FormValue("email"),
 		Password: c.FormValue("password"),
@@ -26,16 +25,17 @@ func RegisterHandler(c *fiber.Ctx, ctx context.Context) error {
 		})
 	}
 
-	logs.Logger.Debug("creds", "email", email, "password", password)
-			
+	logs.Logger.Debug("creds", "email", user.Email, "password", user.Password)
+
 	hashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		logs.Logger.Debug("error while hashing password")
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	sql, args, err := sq.
-		Insert("Users").Columns("email", "password").
+	sqlQuery, args, err := sq.
+		Insert("Users").
+		Columns("email", "password").
 		Values(user.Email, string(hashed)).
 		Suffix("RETURNING id, admin").
 		PlaceholderFormat(sq.Dollar).
@@ -50,17 +50,20 @@ func RegisterHandler(c *fiber.Ctx, ctx context.Context) error {
 
 	dbClient := settings.Clients.DbClient
 
-	err = dbClient.QueryRow(ctx, sql, args...).Scan(&userID, &admin)
+	err = dbClient.QueryRow(ctx, sqlQuery, args...).Scan(&userID, &admin)
 	if err != nil {
-		logs.Logger.Debug("error while executing query", "sql", sql, "args", args, "err": err)
+		logs.Logger.Debug(
+			"error while executing query",
+			"sql", sqlQuery,
+			"args", args,
+			"err", err,
+		)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	token, err := utils.GenerateToken(admin, userID)
-
 	if err != nil {
-		log.Debug(err.Error())
-		logs.Logger.Debug("creating token error")
+		logs.Logger.Debug("creating token error", "err", err.Error())
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
@@ -71,5 +74,6 @@ func RegisterHandler(c *fiber.Ctx, ctx context.Context) error {
 		Secure:   !c.IsFromLocal(),
 		MaxAge:   3600 * 24 * 7,
 	})
+
 	return nil
 }

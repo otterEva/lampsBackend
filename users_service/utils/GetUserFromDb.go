@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/otterEva/lamps/users_service/logs"
 	"github.com/otterEva/lamps/users_service/settings"
@@ -22,7 +22,7 @@ func GetUserFromDb(c *fiber.Ctx, ctx context.Context, userId uint, admin bool) e
 		ToSql()
 	if err != nil {
 		logs.Logger.Error("error while creating request", "sql", sql, "args", args)
-		return c.SendStatus(StatusInternalServerError)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	var exists int
@@ -36,11 +36,11 @@ func GetUserFromDb(c *fiber.Ctx, ctx context.Context, userId uint, admin bool) e
 			logs.Logger.Debug("user not exists", "err", err.Error())
 
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "user doesn't exists",
-		})
+				"error": "user doesn't exists",
+			})
 		}
 		logs.Logger.Error("undexpected error")
-		return c.SendStatus(StatusInternalServerError)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	return nil

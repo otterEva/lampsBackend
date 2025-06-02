@@ -25,7 +25,7 @@ func AdminGoodsPost(c *fiber.Ctx, ctx context.Context) error {
 	log.Debug(isAdmin)
 
 	image_url, err := helpers.SendToImageService(c)
-	
+
 	if err != nil {
 		return err
 	}

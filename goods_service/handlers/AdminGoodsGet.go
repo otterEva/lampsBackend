@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/otterEva/lamps/goods_service/logs"
 	"github.com/otterEva/lamps/goods_service/schemas"
 	"github.com/otterEva/lamps/goods_service/settings"
 )
@@ -13,6 +14,9 @@ import (
 func AdminGoodsGet(c *fiber.Ctx, ctx context.Context) error {
 
 	val := c.Locals("admin")
+
+	logs.Logger.Debug("получение товаров")
+
 	isAdmin, ok := val.(bool)
 	if !ok || !isAdmin {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
@@ -21,7 +25,7 @@ func AdminGoodsGet(c *fiber.Ctx, ctx context.Context) error {
 	}
 
 	log.Debug(isAdmin)
-		
+
 	sql, args, err := sq.
 		Select("id", "description", "name", "image_url", "cost", "active").
 		From("Goods").

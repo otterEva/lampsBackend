@@ -37,6 +37,7 @@ func main() {
 		AllowOrigins: "*",
 	}))
 
+
 	app.Get("/goods", func(c *fiber.Ctx) error {
 		return handlers.UserGoodsGet(c, ctx)
 	})
@@ -47,9 +48,6 @@ func main() {
 
 	protected := app.Group("/", middlewares.AuthMiddleware())
 
-	protected.Delete("/goods/admin/:id", func(c *fiber.Ctx) error {
-		return handlers.AdminGoodDelete(c, ctx)
-	})
 
 	protected.Post("/goods/admin", func(c *fiber.Ctx) error {
 		return handlers.AdminGoodsPost(c, ctx)
@@ -59,9 +57,15 @@ func main() {
 		return handlers.AdminGoodsGet(c, ctx)
 	})
 
+	protected.Delete("/goods/admin/:id", func(c *fiber.Ctx) error {
+		return handlers.AdminGoodDelete(c, ctx)
+	})
+
 	protected.Patch("/goods/admin/:id", func(c *fiber.Ctx) error {
 		return handlers.AdminGoodsPatch(c, ctx)
 	})
+
+
 
 	// -----------------------------------------------------------------
 

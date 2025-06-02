@@ -10,7 +10,7 @@ import (
 )
 
 func UserGetOrders(c *fiber.Ctx, ctx context.Context) error {
-	
+
 	userIDRaw := c.Locals("userId")
 	userID := uint(userIDRaw.(float64))
 

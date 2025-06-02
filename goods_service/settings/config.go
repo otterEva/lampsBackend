@@ -9,8 +9,8 @@ import (
 type configStruct struct {
 	DATABASE_URL string `env:"DB_DSN"`
 
-	SECRET  string `env:"SECRET"`
-	APP_URL string `env:"APP_URL"`
+	SECRET    string `env:"SECRET"`
+	APP_URL   string `env:"APP_URL"`
 	LOG_LEVEL string `env:"LOG_LEVEL"`
 }
 

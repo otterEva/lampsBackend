@@ -12,6 +12,7 @@ import (
 )
 
 func CheckIfGoodExists(c *fiber.Ctx, ctx context.Context) error {
+	log.Debug("начали работать")
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {

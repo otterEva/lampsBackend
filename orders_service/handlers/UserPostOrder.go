@@ -35,13 +35,15 @@ func UserPostOrder(c *fiber.Ctx, ctx context.Context) error {
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
-		url := fmt.Sprintf("http://goods_service:8083/goods/%v", item.GoodID)
+		url := fmt.Sprintf("http://goods_service:8080/goods/%v", item.GoodID)
+
 		resp, err := http.Get(url)
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
+		
 		if resp.StatusCode != 200 {
-			log.Debug("ошибка запроса", resp.Status)
+			log.Debug("ошибка запроса", resp.Status, url)
 			return c.SendStatus(fiber.StatusBadRequest)
 		}
 
