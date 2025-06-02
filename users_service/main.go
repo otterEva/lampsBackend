@@ -33,19 +33,15 @@ func main() {
 		AllowOrigins: "*",
 	}))
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendStatus(fiber.StatusOK)
-	})
-
-	app.Post("/register", func(c *fiber.Ctx) error {
+	app.Post("auth/register", func(c *fiber.Ctx) error {
 		return handlers.RegisterHandler(c, ctx)
 	})
 
-	app.Post("/login", func(c *fiber.Ctx) error {
+	app.Post("auth/login", func(c *fiber.Ctx) error {
 		return handlers.LoginHandler(c, ctx)
 	})
 
-	app.Get("/:userId/:admin", func(c *fiber.Ctx) error {
+	app.Get("auth/:userId/:admin", func(c *fiber.Ctx) error {
 		return handlers.CheckForUserHandler(c)
 	})
 

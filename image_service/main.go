@@ -36,10 +36,6 @@ func main() {
 		AllowOrigins: "http://localhost:5173, http://127.0.0.1:5173",
 	}))
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendStatus(fiber.StatusOK)
-	})
-
 	app.Get("/images/:image_url", func(c *fiber.Ctx) error {
 		return handlers.GetImageHandler(c)
 	})

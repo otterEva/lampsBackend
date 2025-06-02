@@ -40,6 +40,7 @@ func AdminGoodsPatch(c *fiber.Ctx, ctx context.Context) error {
 	}
 
 	image_url, err := helpers.SendToImageService(c)
+	
 	log.Debug(image_url)
 
 	if err != nil {

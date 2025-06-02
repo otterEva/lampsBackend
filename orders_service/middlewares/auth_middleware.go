@@ -60,7 +60,7 @@ func AuthMiddleware(ctx context.Context) fiber.Handler {
 		go func() {
 			defer wg.Done()
 
-			resp, err := http.Get(fmt.Sprintf("http://users_service:8081/%v/%v", userId, admin))
+			resp, err := http.Get(fmt.Sprintf("http://users_service:8080/auth/%v/%v", userId, admin))
 			if err != nil {
 				fmt.Println("Ошибка запроса:", err)
 				return
