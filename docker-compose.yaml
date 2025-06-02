@@ -88,7 +88,7 @@ services:
       - minio
     environment:
       SECRET: SUPER-SECRET-KEY
-      APP_URL: 0.0.0.0:8084
+      APP_URL: 0.0.0.0:8080
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET: bucket
@@ -115,7 +115,13 @@ services:
       retries: 3
 
   # ------------------------------------------------------------------
+  front:
+    build: ./front
+    container_name: front
+    ports:
+      - "5173:5173"
 
+  # ------------------------------------------------------------------
   nginx:
     image: nginx:latest
     container_name: nginx

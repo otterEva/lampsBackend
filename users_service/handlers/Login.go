@@ -58,7 +58,7 @@ func LoginHandler(c *fiber.Ctx, ctx context.Context) error {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(authUser.Password)); err != nil {
-		logs.Logger.Info("is this token real? seems like no")
+		logs.Logger.Info("invalid credentials")
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
@@ -70,12 +70,16 @@ func LoginHandler(c *fiber.Ctx, ctx context.Context) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	c.Cookie(&fiber.Cookie{
-		Name:     "jwt",
-		Value:    token,
-		HTTPOnly: !c.IsFromLocal(),
-		Secure:   !c.IsFromLocal(),
-		MaxAge:   3600 * 24 * 7,
-	})
+c.Cookie(&fiber.Cookie{
+    Name:     "jwt",
+    Value:    token,
+    HTTPOnly: false,    
+    Secure:   true,          
+    SameSite: "None",        
+    Path:     "/",           
+    MaxAge:   3600 * 24 * 7, 
+	Domain: "127.0.0.1",
+})
+
 	return nil
 }

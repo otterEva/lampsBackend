@@ -70,6 +70,7 @@ func SendToImageService(c *fiber.Ctx) (string, error) {
 	if err != nil {
 		return "", c.SendStatus(fiber.StatusBadGateway)
 	}
+	
 	defer resp.Body.Close()
 	log.Debug(resp)
 

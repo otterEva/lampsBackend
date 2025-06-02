@@ -7,7 +7,6 @@ import (
 	"syscall"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/otterEva/lamps/goods_service/handlers"
 	"github.com/otterEva/lamps/goods_service/middlewares"
 	"github.com/otterEva/lamps/goods_service/settings"
@@ -33,39 +32,31 @@ func main() {
 
 	// -----------------------------------------------------------------
 
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-	}))
-
-
 	app.Get("/goods", func(c *fiber.Ctx) error {
 		return handlers.UserGoodsGet(c, ctx)
+	})
+
+	protected := app.Group("/goods/admin", middlewares.AuthMiddleware())
+
+	protected.Post("", func(c *fiber.Ctx) error {
+		return handlers.AdminGoodsPost(c, ctx)
+	})
+
+	protected.Get("", func(c *fiber.Ctx) error {
+		return handlers.AdminGoodsGet(c, ctx)
+	})
+
+	protected.Delete("/:id", func(c *fiber.Ctx) error {
+		return handlers.AdminGoodDelete(c, ctx)
+	})
+
+	protected.Patch("/:id", func(c *fiber.Ctx) error {
+		return handlers.AdminGoodsPatch(c, ctx)
 	})
 
 	app.Get("/goods/:id", func(c *fiber.Ctx) error {
 		return handlers.CheckIfGoodExists(c, ctx)
 	})
-
-	protected := app.Group("/", middlewares.AuthMiddleware())
-
-
-	protected.Post("/goods/admin", func(c *fiber.Ctx) error {
-		return handlers.AdminGoodsPost(c, ctx)
-	})
-
-	protected.Get("/goods/admin", func(c *fiber.Ctx) error {
-		return handlers.AdminGoodsGet(c, ctx)
-	})
-
-	protected.Delete("/goods/admin/:id", func(c *fiber.Ctx) error {
-		return handlers.AdminGoodDelete(c, ctx)
-	})
-
-	protected.Patch("/goods/admin/:id", func(c *fiber.Ctx) error {
-		return handlers.AdminGoodsPatch(c, ctx)
-	})
-
-
 
 	// -----------------------------------------------------------------
 

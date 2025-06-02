@@ -7,7 +7,6 @@ import (
 	"syscall"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/otterEva/lamps/users_service/handlers"
 	"github.com/otterEva/lamps/users_service/settings"
 )
@@ -29,9 +28,6 @@ func main() {
 	}()
 
 	// -----------------------------------------------------------------
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-	}))
 
 	app.Post("auth/register", func(c *fiber.Ctx) error {
 		return handlers.RegisterHandler(c, ctx)

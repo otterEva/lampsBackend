@@ -67,13 +67,16 @@ func RegisterHandler(c *fiber.Ctx, ctx context.Context) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	c.Cookie(&fiber.Cookie{
-		Name:     "jwt",
-		Value:    token,
-		HTTPOnly: !c.IsFromLocal(),
-		Secure:   !c.IsFromLocal(),
-		MaxAge:   3600 * 24 * 7,
-	})
+c.Cookie(&fiber.Cookie{
+    Name:     "jwt",
+    Value:    token,
+    HTTPOnly: false,         // JS должен иметь к ней доступ
+    Secure:   true,          // в production — true, тут важно для SameSite=None
+    SameSite: "None",        // без этого Lax по умолчанию и куку не пришлют по POST из другого origin
+    Path:     "/",           // чтобы документ.cookie увидел куку на любом пути
+    MaxAge:   3600 * 24 * 7, // 7 дней
+})
+
 
 	return nil
 }
